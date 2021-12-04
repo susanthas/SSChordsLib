@@ -77,9 +77,10 @@ SSChordsLib.prototype.format = function (unformatText) {
     var me = this;
     me.settings.notes_altered.forEach(function (note, c) {
         me.settings.forms.forEach(function (form, f) {
-            out = me.replaceAll(out, "\&" + note + form, "<c chord='" + note + "' r='" + form + "'>" + note + "</c>");
+            out = me.replaceAll(out, "&" + note + form, "<c chord='" + note + "' r='" + form + "'>" + note + "</c>");
         });
     });
+    out = this.replaceAll(out, "&/", "<c>/</c>");
     out = this.replaceAll(out, "  ", "&nbsp;&nbsp;");
     out = this.replaceAll(out, "   ", "&nbsp;&nbsp;&nbsp;");
     out = this.replaceAll(out, "     ", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
@@ -100,9 +101,10 @@ SSChordsLib.prototype.unformat = function (formattedHtml) {
     var out = formattedHtml;
     var $div = document.createElement("div");
     $div.innerHTML = formattedHtml;
-
+    var chord;
     $div.querySelectorAll("c").forEach(function (node) {
-        node.replaceWith("&" + (node.getAttribute("chord")));
+        chord = node.getAttribute("chord") || "/";
+        node.replaceWith("&" + chord);
     });
     $div.querySelectorAll("br").forEach(function (node) {
         node.replaceWith("\n");
@@ -154,8 +156,8 @@ SSChordsLib.prototype.transpose = function($element, dir) {
 SSChordsLib.prototype.allChords = function($element) {
     var out = "", chord;
     $element.querySelectorAll('c').forEach(function (node) {
-        chord = node.getAttribute("chord") + node.getAttribute("r");
-        if (("," + out + ",").indexOf(chord) < 0) {
+        chord = node.getAttribute("chord") || "" ;
+        if (chord != "" && ("," + out + ",").indexOf(chord) < 0) {
             if (out != "") out += ",";
             out += chord;
         }
