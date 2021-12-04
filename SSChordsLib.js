@@ -59,7 +59,6 @@ SSChordsLib.prototype.format = function (rowText) {
     var me = this;
     me.settings.notes_altered.forEach(function (note, c) {
         me.settings.forms.forEach(function (form, f) {
-            console.log(note + "," + form);
             out = me.replaceAll(out, "\&" + note + form, "<c chord='" + note + "' r='" + form + "'>" + note + "</c>");
         });
     });
