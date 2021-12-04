@@ -15,7 +15,12 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-/* options = { chordColor: "hex color or known color name"
+
+/* 
+ * Returns a SSChordsLib instance to be able to use the available functions
+ * options: { femaleColor: "hex color or known color name"
+ *              , maleColor: "hex color or known color name"
+ *              , chordColor: "hex color or known color name"
  *              , notes: [<array of notes>]
  *              , notes_altered: [<array of notes with complex note at first>]
  *              , forms: [<array of all the possible forms of a note>]
@@ -25,6 +30,7 @@
 function SSChordsLib(options) {
     this.settings = {
         femaleColor: "pink",
+        maleColor: "cyan",
         chordColor: "orange",
         notes : ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"], // correct order of notes, used for transpose
         notes_altered : ["C#", "C", "D", "Eb", "E", "F#", "F", "G", "Ab", "A", "Bb", "B"], // need complex notes first
@@ -32,13 +38,25 @@ function SSChordsLib(options) {
     }
     Object.assign(this.settings, options);
     var sheet = document.createElement('style');
-    sheet.innerHTML = "c{position:absolute;margin-top:-1em;color:" + this.settings.chordColor + ";}pre>c{ margin-top:0px;}c::after{content: attr(r); margin-top:-0.2em;position:absolute;}sex[f='1']{color:" + this.settings.femaleColor + ";}";
+    sheet.innerHTML = "c{position:absolute;margin-top:-1em;color:" + this.settings.chordColor + ";}pre>c{ margin-top:0px;}c::after{content: attr(r); margin-top:-0.2em;position:absolute;}sex[f='1']{color:" + this.settings.femaleColor + ";}sex[f='0']{color:" + this.settings.maleColor + ";}";
     document.body.appendChild(sheet);
 };
 
-SSChordsLib.prototype.format = function (rowText) {
-    var out = this.unformat(rowText);// just make sure, reformatting of formatted text doesn't break anything
-    out = this.replaceAll(rowText, "\n", "<br/>"); // line breaks
+/*
+ *  Returns formatted song text of a correcly typed song
+ *  unformatText: song text typed in the correct formatting symbols
+ *  supported symbols: 
+ *      [[ = intro/inter start
+ *      ]] = intro/inter end
+ *      f{{ = female section start
+ *      m{{ = male section start
+ *      }} = female section end/ male section end
+ *      & = chord start
+ *      / = 
+ */
+SSChordsLib.prototype.format = function (unformatText) {
+    var out = this.unformat(unformatText);// just make sure, reformatting of formatted text doesn't break anything
+    out = this.replaceAll(unformatText, "\n", "<br/>"); // line breaks
     var section, original, sIndex, eIndex;
     while (out.indexOf("[[") >= 0) {
         sIndex = out.indexOf("[[");
@@ -66,7 +84,7 @@ SSChordsLib.prototype.format = function (rowText) {
     out = this.replaceAll(out, "   ", "&nbsp;&nbsp;&nbsp;");
     out = this.replaceAll(out, "     ", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
     out = this.replaceAll(out, "f{{", "<sex f='1'>");
-    out = this.replaceAll(out, "m{{", "<sex f='o'>");
+    out = this.replaceAll(out, "m{{", "<sex f='0'>");
     out = this.replaceAll(out, "}}", "</sex>");
     out = this.replaceAll(out, "</c>/", "</c>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/");
     out = this.replaceAll(out, "</c> /", "</c>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/");
@@ -74,13 +92,17 @@ SSChordsLib.prototype.format = function (rowText) {
     return out;
 }
 
+/*
+ *  Returns unformatted song text of a formatted HTML song text
+ *  formattedHtml: HTML song text formatted using format function
+ */
 SSChordsLib.prototype.unformat = function (formattedHtml) {
     var out = formattedHtml;
     var $div = document.createElement("div");
     $div.innerHTML = formattedHtml;
 
     $div.querySelectorAll("c").forEach(function (node) {
-        node.replaceWith("&" + (node.getAttribute("chord") + node.getAttribute("r")));
+        node.replaceWith("&" + (node.getAttribute("chord")));
     });
     $div.querySelectorAll("br").forEach(function (node) {
         node.replaceWith("\n");
@@ -99,6 +121,11 @@ SSChordsLib.prototype.unformat = function (formattedHtml) {
     return out;
 }
 
+/*
+ *  Transposes the chords in a song 
+ *  $element: HTML DOM Element
+ *  dir: Direction ( 1 - up, 0 - down) 
+ */
 SSChordsLib.prototype.transpose = function($element, dir) {
     var crd, next;
     var me = this;
@@ -114,13 +141,16 @@ SSChordsLib.prototype.transpose = function($element, dir) {
 
 
                 node.setAttribute("chord", me.settings.notes[next]);
-                //node.setAttribute("r",);
                 node.innerHTML = me.settings.notes[next];
             }
         });
     });
 }
 
+/*
+ *  Returns all the chords used in the song (DOM element)
+ *  $element: HTML DOM Element
+ */
 SSChordsLib.prototype.allChords = function($element) {
     var out = "", chord;
     $element.querySelectorAll('c').forEach(function (node) {
