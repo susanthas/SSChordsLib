@@ -1,11 +1,14 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
     <title>Demo of SSChordLib</title>
     <script type="text/javascript" src="SSChordsLib.js"></script>
     <style>
-        body, html { font-size:16px;}
+        body, html {
+            font-size: 16px;
+        }
+
         textarea {
             width: 600px;
             height: 200px;
@@ -14,15 +17,22 @@
         red {
             color: red;
         }
-        c:hover::after { content: "Show your chord " attr(chord); position:absolute; background-color:black;padding:6px;z-index:1;}
+
+        c:hover::after {
+            content: "Show your chord " attr(chord);
+            position: absolute;
+            background-color: black;
+            padding: 6px;
+            z-index: 1;
+        }
     </style>
 </head>
 <body>
     <h3>This page shows what this small library SSChordsLib can do</h3>
     <p>
         When I developed a website to store my favourit songs with chords, I wanted a library that I could easily enter chords and transpose easily. At the time I could not find any, so I developed a small
-        Javascript library using my limited knowledge in music and vast knowledge in programming. The result is this library. This will make it easier for you to enter chords, format and allow your viewers to
-        transpose. <br />
+        Javascript library using my limited knowledge in music and vast knowledge in programming 😜. The result is this library. This will make it easier for you to enter chords, format and allow your viewers to
+        transpose. BTW, I don't mind if you give credits to me for sharing from my private stash 😀, but not necessary.<br />
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -32,20 +42,31 @@
         // How to use the library in your page
         &lt;script type="text/javascript" src="/SSChordsLib.min.js"&gt;&lt;/script&gt;
         &lt;script type="text/javascript"
-            // create an instance of the class
-            var lib = new SSChordsLib();
+            // create an instance of the library
+            /* options = { femaleColor: "hex color or known color name"
+            *              , maleColor: "hex color or known color name"
+            *              , chordColor: "hex color or known color name"
+            *              , notes: [&lt;array of notes&gt;]
+            *              , notes_altered: [&lt;array of notes with complex note at first&gt;]
+            *              , forms: [&lt;array of all the possible forms of a note&gt;]
+            *           }
+            var options = {};
+            var lib = new SSChordsLib(options);
         
-            // To format      
-            lib.format("unformatted chords text"); // from a textarea etc
+            // To format the song you typed in   
+            var formatttedHtml = lib.format("unformatted chords text"); // from a textarea etc
 
-            // To unformat (you may want to go back to row text to make changes)
-            lib.unformat("formatted chords HTML"); // from a div etc.
+            // To unformat (you may want to go back to unformatted version to make changes)
+            var unformattedText = lib.unformat("formatted chords HTML"); // HTML from a div
 
-            // To transpose (plus). (Here you will bee passing in an HTML DOM element wich has the formatted code)
-            lib.transpose(document.body.querySelector(".editorText"), 1);
+            // To transpose (plus). (Here you will be passing in an HTML DOM element which has the formatted code)
+            lib.transpose(&lt;html DOM element with formatted HTML&gt;, 1); // document.body.querySelector(".editorText")
  
-            // To transpose (minus). (Here you will bee passing in an HTML DOM element (div) wich has the formatted code)
-            lib.transpose(document.body.querySelector(".editorText"), -1);
+            // To transpose (minus). (Here you will be passing in an HTML DOM element (div) which has the formatted code)
+            lib.transpose(&lt;html DOM element with formatted HTML&gt;, -1); // document.body.querySelector(".editorText")
+            
+            // Sometimes users would like to see all the chords used in the song.
+            var usedChordsList = lib.allChords(&lt;html DOM element with formatted HTML&gt;); // document.body.querySelector(".editorText")
        
         &lt;/script&gt;
        
@@ -71,6 +92,8 @@ We &Dwon't find out &Gun&Ctil we &Agro&Asus4w        &A}}
 m{{Well, &DI don't know if &Gall that's true
 
 Cause &Dyou got me, and &Gbaby &CI got &Ayo&Asus4u        &A}}
+
+&Dbabe&G  I got &Dyou babe&G I got &Dyou babe&G
     </textarea><br />
     <input type="button" value="Format" onclick="format();" />
     <h4>Show chords used in the song displayed</h4>
@@ -83,45 +106,46 @@ Cause &Dyou got me, and &Gbaby &CI got &Ayo&Asus4u        &A}}
     <div class="editorText" contenteditable="true" style="" border:1px solid red;width:600px;height:300px;">
 
     </div>
-    
-
-        <script type="text/javascript">
-            function format() {
-                var lib = new SSChordsLib({ chordColor: "red"});
-                document.body.querySelector(".editorText").innerHTML = lib.format(document.body.querySelector(".unformattedText").value);
-                document.body.querySelector(".usedChords").innerHTML = lib.allChords(document.body.querySelector(".editorText"));
-            }
-
-            function unformat() {
-                var lib = new SSChordsLib();
-                document.body.querySelector(".unformattedText").value = lib.unformat(document.body.querySelector(".editorText").innerHTML);
-            }
-
-            function transPlus() {
-                var lib = new SSChordsLib();
-                lib.transpose(document.body.querySelector(".editorText"), 1);
-            }
-
-            function transMinus() {
-                var lib = new SSChordsLib();
-                lib.transpose(document.body.querySelector(".editorText"), -1);
-            }
-
-            function fontPlus() {
-                var fs = (parseFloat(document.body.querySelector(".editorText").style.fontSize || 1));
-                document.body.querySelector(".editorText").style.fontSize = (fs + 0.1) + "em";
-            }
-
-            function fontMinus() {
-                var fs = (parseFloat(document.body.querySelector(".editorText").style.fontSize || 1));
-                document.body.querySelector(".editorText").style.fontSize = (fs - 0.1) + "em";
-            }
 
 
-            format();
+    <script type="text/javascript">
+        function format() {
+            var lib = new SSChordsLib({ chordColor: "red" });
+            document.body.querySelector(".editorText").innerHTML = lib.format(document.body.querySelector(".unformattedText").value);
+            document.body.querySelector(".usedChords").innerHTML = lib.allChords(document.body.querySelector(".editorText"));
+        }
 
-        </script>
-        <label>(2021/Dec/03)</label>
+        function unformat() {
+            var lib = new SSChordsLib();
+            document.body.querySelector(".unformattedText").value = lib.unformat(document.body.querySelector(".editorText").innerHTML);
+        }
+
+        function transPlus() {
+            var lib = new SSChordsLib();
+            lib.transpose(document.body.querySelector(".editorText"), 1);
+        }
+
+        function transMinus() {
+            var lib = new SSChordsLib();
+            lib.transpose(document.body.querySelector(".editorText"), -1);
+        }
+
+        function fontPlus() {
+            var fs = (parseFloat(document.body.querySelector(".editorText").style.fontSize || 1));
+            document.body.querySelector(".editorText").style.fontSize = (fs + 0.1) + "em";
+        }
+
+        function fontMinus() {
+            var fs = (parseFloat(document.body.querySelector(".editorText").style.fontSize || 1));
+            document.body.querySelector(".editorText").style.fontSize = (fs - 0.1) + "em";
+        }
+
+
+        format();
+
+    </script>
+    <br /><br /><br /><br />
+    <label>Susantha Soysa (susanthas@gmail.com)- 2021/Dec/03</label>
 </body>
 
 </html>
