@@ -55,41 +55,42 @@ function SSChordsLib(options) {
  *      / = 
  */
 SSChordsLib.prototype.format = function (unformatText) {
-    var out = this.unformat(unformatText);// just make sure, reformatting of formatted text doesn't break anything
-    out = this.replaceAll(unformatText, "\n", "<br/>"); // line breaks
-    var section, original, sIndex, eIndex;
-    while (out.indexOf("[[") >= 0) {
-        sIndex = out.indexOf("[[");
-        eIndex = out.indexOf("]]", sIndex) + 2;
-        if (eIndex <= 2) break; // no matching end point, so no formatting
+    var out = unformatText;
+    if (out.indexOf("</c>") < 0) {
+        out = this.replaceAll(unformatText, "\n", "<br/>"); // line breaks
+        var section, original, sIndex, eIndex;
+        while (out.indexOf("[[") >= 0) {
+            sIndex = out.indexOf("[[");
+            eIndex = out.indexOf("]]", sIndex) + 2;
+            if (eIndex <= 2) break; // no matching end point, so no formatting
 
-        section = original = out.substring(sIndex, eIndex);
-        section = this.replaceAll(section, "/&", "/&nbsp;&nbsp;&");
-        section = this.replaceAll(section, "/ &", "/&nbsp;&nbsp;&");
-        section = this.replaceAll(section, "/-", "/&nbsp;&nbsp;&nbsp;-");
-        section = this.replaceAll(section, "/ -", "/&nbsp;&nbsp;&nbsp;-");
-        section = this.replaceAll(section, "-/", "-&nbsp;&nbsp;&nbsp;/");
-        section = this.replaceAll(section, "- /", "-&nbsp;&nbsp;&nbsp;/");
-        section = this.replaceAll(section, "[[", "<pre>");
-        section = this.replaceAll(section, "]]", "</pre>");
-        out = this.replaceAll(out, original, section);
-    }
-    var me = this;
-    me.settings.notes_altered.forEach(function (note, c) {
-        me.settings.forms.forEach(function (form, f) {
-            out = me.replaceAll(out, "&" + note + form, "<c chord='" + note + "' r='" + form + "'>" + note + "</c>");
+            section = original = out.substring(sIndex, eIndex);
+            section = this.replaceAll(section, "/&", "/&nbsp;&nbsp;&");
+            section = this.replaceAll(section, "/ &", "/&nbsp;&nbsp;&");
+            section = this.replaceAll(section, "/-", "/&nbsp;&nbsp;&nbsp;-");
+            section = this.replaceAll(section, "/ -", "/&nbsp;&nbsp;&nbsp;-");
+            section = this.replaceAll(section, "-/", "-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/");
+            section = this.replaceAll(section, "- /", "-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/");
+            section = this.replaceAll(section, "[[", "<pre>");
+            section = this.replaceAll(section, "]]", "</pre>");
+            out = this.replaceAll(out, original, section);
+        }
+        var me = this;
+        me.settings.notes_altered.forEach(function (note, c) {
+            me.settings.forms.forEach(function (form, f) {
+                out = me.replaceAll(out, "&" + note + form, "<c chord='" + note + "' r='" + form + "'>" + note + "</c>");
+            });
         });
-    });
-    out = this.replaceAll(out, "&/", "<c>/</c>");
-    out = this.replaceAll(out, "  ", "&nbsp;&nbsp;");
-    out = this.replaceAll(out, "   ", "&nbsp;&nbsp;&nbsp;");
-    out = this.replaceAll(out, "     ", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
-    out = this.replaceAll(out, "f{{", "<sex f='1'>");
-    out = this.replaceAll(out, "m{{", "<sex f='0'>");
-    out = this.replaceAll(out, "}}", "</sex>");
-    out = this.replaceAll(out, "</c>/", "</c>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/");
-    out = this.replaceAll(out, "</c> /", "</c>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/");
-
+        out = this.replaceAll(out, "&/", "<c>/</c>");
+        out = this.replaceAll(out, "  ", "&nbsp;&nbsp;");
+        out = this.replaceAll(out, "   ", "&nbsp;&nbsp;&nbsp;");
+        out = this.replaceAll(out, "     ", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+        out = this.replaceAll(out, "f{{", "<sex f='1'>");
+        out = this.replaceAll(out, "m{{", "<sex f='0'>");
+        out = this.replaceAll(out, "}}", "</sex>");
+        out = this.replaceAll(out, "</c>/", "</c>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/");
+        out = this.replaceAll(out, "</c> /", "</c>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/");
+    }
     return out;
 }
 
@@ -101,10 +102,11 @@ SSChordsLib.prototype.unformat = function (formattedHtml) {
     var out = formattedHtml;
     var $div = document.createElement("div");
     $div.innerHTML = formattedHtml;
-    var chord;
+    var chord, form;
     $div.querySelectorAll("c").forEach(function (node) {
         chord = node.getAttribute("chord") || "/";
-        node.replaceWith("&" + chord);
+        form = node.getAttribute("r") || "";
+        node.replaceWith("&" + chord + form);
     });
     $div.querySelectorAll("br").forEach(function (node) {
         node.replaceWith("\n");
