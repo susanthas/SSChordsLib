@@ -32,13 +32,13 @@ function SSChordsLib(options) {
         femaleColor: "pink",
         maleColor: "cyan",
         chordColor: "orange",
-        notes : ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"], // correct order of notes, used for transpose
-        notes_altered : ["C#", "C", "D", "Eb", "E", "F#", "F", "G", "Ab", "A", "Bb", "B"], // need complex notes first
+        notes: ["Ab", "A", "Bb", "B","C", "C#", "D", "Eb", "E", "F", "F#", "G"], // correct order of notes, used for transpose
+        notes_altered: ["Ab", "A", "Bb", "B", "C#", "C", "D", "Eb", "E", "F#", "F", "G" ], // need complex notes first
         forms : ["maj7", "maj9", "sus7", "dim7", "maj", "sus4", "sus2", "sus", "dim", "aug", "m7", "m9", "m", "7", "9", "\+", ""] // add more complex forms at the beginining
     }
     Object.assign(this.settings, options);
     var sheet = document.createElement('style');
-    sheet.innerHTML = "c{position:absolute;margin-top:-1em;color:" + this.settings.chordColor + ";}pre>c{ margin-top:0px;}c::after{content: attr(r); margin-top:-0.2em;position:absolute;}sex[f='1']{color:" + this.settings.femaleColor + ";}sex[f='0']{color:" + this.settings.maleColor + ";}";
+    //sheet.innerHTML = "c{position:absolute;margin-top:-1em;color:" + this.settings.chordColor + ";}pre>c{ margin-top:0px;}c::after{content: attr(r); margin-top:-0.2em;position:absolute;}sex[f='1']{color:" + this.settings.femaleColor + ";}sex[f='0']{color:" + this.settings.maleColor + ";}";
     document.body.appendChild(sheet);
 };
 
@@ -145,7 +145,7 @@ SSChordsLib.prototype.transpose = function($element, dir) {
 
 
                 node.setAttribute("chord", me.settings.notes[next]);
-                node.innerHTML = me.settings.notes[next];
+                node.innerHTML = "";//me.settings.notes[next];
             }
         });
     });
@@ -158,8 +158,8 @@ SSChordsLib.prototype.transpose = function($element, dir) {
 SSChordsLib.prototype.allChords = function($element) {
     var out = "", chord;
     $element.querySelectorAll('c').forEach(function (node) {
-        chord = node.getAttribute("chord") || "" ;
-        if (chord != "" && ("," + out + ",").indexOf(chord) < 0) {
+        chord = (node.getAttribute("chord") || "") + (node.getAttribute("r") || "");
+        if (chord != "" && ("," + out + ",").indexOf("," + chord + ",") < 0) {
             if (out != "") out += ",";
             out += chord;
         }
